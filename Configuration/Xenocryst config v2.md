@@ -21,7 +21,7 @@ QuickResume: false
 Thumbnail:
 External:
   - https://olkris.party/Xenocryst
-  - https://olkris.party
+  - https://github.com/Olkris/Obsidian-Xenocryst.git
 Shortcuts:
   - .
   - .

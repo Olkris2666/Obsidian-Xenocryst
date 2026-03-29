@@ -697,6 +697,7 @@ views:
       - formula.Checkbox
       - formula.SmartLink
       - Engaged
+      - Discusses
     sort:
       - property: formula.SpannedToday
         direction: DESC
@@ -797,21 +798,34 @@ views:
     name: 🔚 Missed notes
     filters:
       or:
-        - |-
-          /^[Uu][Nn][Tt][Ii][Tt][Ll][Ee][Dd]/
-          .matches(file.basename)
         - and:
-            - and:
+            - |-
+              if(
+              formula.VariablesDate[0][1] 
+              == "Day",
+              file.ctime
+              .format("YYYY-MM-DD")
+              == this.file.basename
+              ,
+              true
+              )
+            - or:
+                - |-
+                  /^[Uu][Nn][Tt][Ii][Tt][Ll][Ee][Dd]/
+                  .matches(file.basename)
                 - and:
-                    - Discusses.isEmpty()
-                    - Engaged.isEmpty()
-                - and:
-                    - Collections.isEmpty()
-            - not:
-                - formula.ContainedDates
+                    - and:
+                        - and:
+                            - Discusses.isEmpty()
+                            - Engaged.isEmpty()
+                        - and:
+                            - Collections.isEmpty()
+                    - not:
+                        - formula.ContainedDates
     order:
       - file.name
       - file.ctime
+      - formula.VariablesDate
     sort:
       - property: file.ctime
         direction: DESC

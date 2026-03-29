@@ -10,7 +10,12 @@ Contributors:
 Collections:
   - "[[Obsidian bases]]"
   - "[[Obsidian]]"
+  - "[[Systems]]"
 permalink: Xenocryst
+External:
+  - https://github.com/Olkris/Obsidian-Xenocryst.git
+  - https://olkris.party/Xenocryst
+Thumbnail:
 ---
 
 # Definition

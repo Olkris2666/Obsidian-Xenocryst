@@ -1,5 +1,38 @@
 summaries:
   Unique: values.unique().length
+  Sum: values.sum().round(2)
+  Since: |-
+    today()
+    -values.earliest()
+  Loss/gain: |+
+    [
+
+    values.reduce(
+
+    if(
+    value < 0,
+    [acc[0]+1, acc[1]]
+    ,if(
+    value > 0,
+    [acc[0], acc[1]+1]
+    )
+    )
+
+    ,
+    [0,0]
+
+    )
+
+    ].map(
+
+    "↓"+value[0]+"/↑"+value[1]
+
+    )[0]
+
+
+
+
+  Average: values.mean().round(2)
 filters:
   and:
     - or:
@@ -553,6 +586,47 @@ formulas:
     )[0]
 
     )
+  CSVAliases: aliases.join(", ")
+  YearlyCost: |-
+    if(
+    Expiry.isEmpty()
+    && !Recurrence.isEmpty(),
+    Money * (12/Recurrence)
+    ,0
+    )
+  TotalPaid: |-
+    
+    if(
+    Recurrence.isEmpty(),
+    Money,
+
+    [
+
+    (
+    (today()-Engaged)
+    .months
+    -
+    if(
+    Expiry,
+    (today()-date(Expiry+"1d"))
+    .months
+    ,0
+    )
+    ).floor()
+
+    ].map(
+
+    (value 
+    - (value % Recurrence)
+    ) / Recurrence
+
+    ).map(
+
+    Money * (1 + value)
+
+    )[0]
+
+    ).round(2)
 properties:
   note.Attraction:
     displayName: 📊
@@ -566,9 +640,11 @@ properties:
     displayName: 🧲
   formula.Backlinks:
     displayName: 🔗
+  formula.YearlyCost:
+    displayName: YearlyCost
 views:
   - type: table
-    name: Default
+    name: Table (reorderable)
     order:
       - formula.Thumbnail
       - file.name
@@ -577,8 +653,6 @@ views:
       - property: Sequence
         direction: ASC
       - property: Query
-        direction: ASC
-      - property: Distinction
         direction: ASC
     separator: ", "
     markers: number
@@ -611,8 +685,48 @@ views:
       formula.Thumbnail: 32
       file.name: 329
       note.aliases: 573
-  - type: map
+  - type: table
     name: ---------- Versatile ----------
+  - type: list
+    name: List (reorderable)
+    order:
+      - Serial
+      - file.name
+      - Specifications
+      - formula.CSVAliases
+    sort:
+      - property: Serial
+        direction: ASC
+    indentProperties: false
+  - type: list
+    name: List (by date)
+    order:
+      - file.name
+      - formula.MainDate
+    sort:
+      - property: Engaged
+        direction: DESC
+  - type: list
+    name: List (ranked)
+    groupBy:
+      property: Attraction
+      direction: DESC
+    order:
+      - file.name
+      - formula.Backlinks
+    sort:
+      - property: formula.Relevance
+        direction: DESC
+      - property: QuickResume
+        direction: DESC
+      - property: Attraction
+        direction: ASC
+    separator: ", "
+    markers: bullet
+    nestedProperties: false
+    columnSize:
+      file.name: 624
+    cardSize: 340
   - type: cards
     name: Tile, textless (by date)
     order: []
@@ -745,45 +859,7 @@ views:
       file.name: 206
       note.aliases: 618
     cardSize: 160
-  - type: list
-    name: List (ordered)
-    order:
-      - Serial
-      - file.name
-      - Specifications
-    sort:
-      - property: Serial
-        direction: ASC
-  - type: list
-    name: List (ranked)
-    groupBy:
-      property: Attraction
-      direction: DESC
-    order:
-      - file.name
-      - formula.Backlinks
-    sort:
-      - property: formula.Relevance
-        direction: DESC
-      - property: QuickResume
-        direction: DESC
-      - property: Attraction
-        direction: ASC
-    separator: ", "
-    markers: bullet
-    nestedProperties: false
-    columnSize:
-      file.name: 624
-    cardSize: 340
-  - type: list
-    name: List (by date)
-    order:
-      - file.name
-      - formula.MainDate
-    sort:
-      - property: Engaged
-        direction: DESC
-  - type: map
+  - type: table
     name: ---------- Specific ----------
   - type: table
     name: Entities
@@ -814,3 +890,34 @@ views:
       note.External: 126
       formula.Relevance: 169
       formula.Backlinks: 48
+  - type: table
+    name: Transactions
+    order:
+      - formula.Thumbnail
+      - formula.YearlyCost
+      - formula.TotalPaid
+      - file.name
+      - Money
+      - Recurrence
+      - Engaged
+      - Expiry
+      - Recipient
+      - Platform
+      - Markers
+    sort:
+      - property: formula.YearlyCost
+        direction: ASC
+      - property: Engaged
+        direction: DESC
+    summaries:
+      formula.YearlyCost: Sum
+      formula.TotalPaid: Sum
+      Engaged: Since
+      Money: Loss/gain
+    columnSize:
+      formula.Thumbnail: 32
+      formula.YearlyCost: 120
+      formula.TotalPaid: 99
+      file.name: 222
+      note.Money: 76
+      note.Recurrence: 72
