@@ -825,7 +825,6 @@ views:
     order:
       - file.name
       - file.ctime
-      - formula.VariablesDate
     sort:
       - property: file.ctime
         direction: DESC
